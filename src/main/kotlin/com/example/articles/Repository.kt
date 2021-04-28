@@ -10,13 +10,14 @@ import java.util.*
 
 class Repository(private val tagsRepository: TagsRepository) {
     suspend fun create(loggedInUser: User, postArticle: PostArticle) = newSuspendedTransaction {
+        val currentUser = UserCache.get(loggedInUser.id)!!
         val article = ArticleDao.new {
             title = postArticle.article.title
             slug = postArticle.article.title
             body = postArticle.article.body
             description = postArticle.article.description
             tags = postArticle.article.tags?.joinToString()
-            author = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+            author = currentUser
         }
         if (!postArticle.article.tags.isNullOrEmpty()) tagsRepository.add(postArticle.article.tags)
         article.toArticle()
@@ -70,7 +71,7 @@ class Repository(private val tagsRepository: TagsRepository) {
             .orderBy(ArticleTable.createdAt to SortOrder.DESC)
             .map {
                 if (loggedInUser != null) {
-                    val currentUser = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+                    val currentUser = UserCache.get(loggedInUser.id)
                     it.toArticle(
                         isFavorite = checkIfArticleIsFavorite(it.author.uid, it.uid),
                         favoritesCount = getArticleFavoritesCount(it),
@@ -93,7 +94,7 @@ class Repository(private val tagsRepository: TagsRepository) {
             .orderBy(ArticleTable.createdAt to SortOrder.DESC)
             .map {
                 if (loggedInUser != null && author != null) {
-                    val currentUser = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+                    val currentUser = UserCache.get(loggedInUser.id)
                     it.toArticle(
                         isFavorite = checkIfArticleIsFavorite(author.uid, it.uid),
                         favoritesCount = getArticleFavoritesCount(it),
@@ -111,7 +112,7 @@ class Repository(private val tagsRepository: TagsRepository) {
             (UserFavoriteTable.userId eq user?.uid)
         }.map {
             if (loggedInUser != null) {
-                val currentUser = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+                val currentUser = UserCache.get(loggedInUser.id)
                 it.article.toArticle(
                     isFavorite = (it.user.uid == loggedInUser.id),
                     favoritesCount = getArticleFavoritesCount(it.article),
@@ -127,7 +128,7 @@ class Repository(private val tagsRepository: TagsRepository) {
 
     suspend fun favorite(loggedInUser: User, slug: String): Article = newSuspendedTransaction {
         val article = getArticleBySlug(slug)
-        val user = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+        val user = UserCache.get(loggedInUser.id)!!
         UserFavoriteDao.new {
             this.user = user
             this.article = article
@@ -137,9 +138,9 @@ class Repository(private val tagsRepository: TagsRepository) {
 
     suspend fun unfavorite(loggedInUser: User, slug: String): Article = newSuspendedTransaction {
         val article = getArticleBySlug(slug)
-        val user = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+        val user = UserCache.get(loggedInUser.id)
         UserFavoriteDao.find {
-            (UserFavoriteTable.articleId eq article.uid and (UserFavoriteTable.userId eq user.uid))
+            (UserFavoriteTable.articleId eq article.uid and (UserFavoriteTable.userId eq user?.uid))
         }.firstOrNull()?.delete()
         val favoritesCount = UserFavoriteDao.find {
             UserFavoriteTable.articleId eq article.uid
@@ -166,17 +167,18 @@ class Repository(private val tagsRepository: TagsRepository) {
         count > 0
     }
 
-    private suspend fun checkIfUserFollowsAuthor(user: UserDao, author: UserDao): Boolean = newSuspendedTransaction {
+    private suspend fun checkIfUserFollowsAuthor(user: UserDao?, author: UserDao): Boolean = newSuspendedTransaction {
         !UserFollowingDao.find {
-            (UserFollowingTable.userId eq user.id) and (UserFollowingTable.followingId eq author.id)
+            ((UserFollowingTable.userId) eq user?.uid) and (UserFollowingTable.followingId eq author.id)
         }.empty()
     }
 
     suspend fun addComment(loggedInUser: User, postComment: PostComment, slug: String) = newSuspendedTransaction {
         val article = getArticleBySlug(slug)
+        val currentUser = UserCache.get(loggedInUser.id)!!
         CommentDao.new {
             body = postComment.comment.body
-            author = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+            author = currentUser
             this.article = article
         }.toComment()
     }
@@ -187,7 +189,7 @@ class Repository(private val tagsRepository: TagsRepository) {
             (CommentTable.article eq article.id)
         }.map { commentDao ->
             if (loggedInUser != null) {
-                val currentUser = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+                val currentUser = UserCache.get(loggedInUser.id)
                 val isFollowing = checkIfUserFollowsAuthor(currentUser, commentDao.author)
                 commentDao.toComment(isFollowingAuthor = isFollowing)
             }
@@ -197,7 +199,7 @@ class Repository(private val tagsRepository: TagsRepository) {
 
     suspend fun deleteComment(loggedInUser: User, slug: String, commentId: String) = newSuspendedTransaction {
         val article = getArticleBySlug(slug)
-        val author = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+        val author = UserCache.get(loggedInUser.id)
         val comment = CommentDao.find {
             ((CommentTable.article eq article.id) and (CommentTable.id eq commentId.toUUID()))
         }.firstOrNull() ?: throw CommentDoesNotExistException("Comment with id: $commentId does not exist")

@@ -43,10 +43,10 @@ class Repository {
         }
     }
 
-    suspend fun findUserById(id: UUID): User? = newSuspendedTransaction {
+    suspend fun findUserById(id: UUID) = newSuspendedTransaction {
         UserDao.find {
             (UserTable.id eq id)
-        }.firstOrNull()?.toUser()
+        }.firstOrNull()
     }
 
     suspend fun findUserByUsername(loggedInUser: User?, username: String): User = newSuspendedTransaction {
@@ -54,9 +54,9 @@ class Repository {
             UserTable.username eq username
         }.firstOrNull() ?: throw UserNotFoundException("User with username:$username is not found")
         if (loggedInUser != null) {
-            val currentUser = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+            val currentUser = UserCache.get(loggedInUser.id)
             val isFollowing = UserFollowingDao.find {
-                ((UserFollowingTable.userId eq currentUser.id) and (UserFollowingTable.followingId eq user.id))
+                ((UserFollowingTable.userId eq currentUser?.uid) and (UserFollowingTable.followingId eq user.id))
             }.empty()
             return@newSuspendedTransaction user.toUser(isFollowing = !isFollowing)
         }
@@ -64,7 +64,7 @@ class Repository {
     }
 
     suspend fun followUser(loggedInUser: User, username: String): User = newSuspendedTransaction {
-        val currentUser = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+        val currentUser = UserCache.get(loggedInUser.id)!!
         val following = UserDao.find {
             UserTable.username eq username
         }.firstOrNull() ?: throw UserNotFoundException("User with username:$username is not found")
@@ -76,12 +76,12 @@ class Repository {
     }
 
     suspend fun unfollowUser(loggedInUser: User, username: String): User = newSuspendedTransaction {
-        val currentUser = UserDao.find { (UserTable.email) eq loggedInUser.email }.first()
+        val currentUser = UserCache.get(loggedInUser.id)
         val following = UserDao.find {
             UserTable.username eq username
         }.firstOrNull() ?: throw UserNotFoundException("User with username:$username is not found")
         UserFollowingDao.find {
-            ((UserFollowingTable.userId eq currentUser.id) and (UserFollowingTable.followingId eq following.id))
+            ((UserFollowingTable.userId eq currentUser?.uid) and (UserFollowingTable.followingId eq following.id))
         }.firstOrNull()?.delete()
         following.toUser(isFollowing = false)
     }

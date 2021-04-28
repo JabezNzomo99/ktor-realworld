@@ -17,16 +17,16 @@ object UserCache : KoinComponent {
 
     private val repository: Repository by inject()
 
-    private val cacheContext = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val cacheContext = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    private val store: AsyncLoadingCache<UUID, User?> =
-        Caffeine.newBuilder().expireAfterWrite(10L, TimeUnit.MINUTES).buildAsync { key, _ ->
+    private val store: AsyncLoadingCache<UUID, UserDao?> =
+        Caffeine.newBuilder().buildAsync { key, _ ->
             cacheContext.future {
                 repository.findUserById(key)
             }
         }
 
-    suspend fun get(key: UUID) = withContext(cacheContext.coroutineContext) {
+    suspend fun get(key: UUID?) = withContext(cacheContext.coroutineContext) {
         store[key].await()
     }
 }
