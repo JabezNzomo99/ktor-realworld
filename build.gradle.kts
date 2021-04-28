@@ -18,6 +18,7 @@ repositories {
     maven { url = uri("https://kotlin.bintray.com/ktor") }
     maven { url = uri("https://plugins.gradle.org/m2/") }
     maven { url = uri("https://dl.bintray.com/ekito/koin") }
+    maven { url = uri("https://dl.bintray.com/ekito/koin") }
 }
 
 dependencies {
@@ -25,6 +26,8 @@ dependencies {
     implementation("io.ktor:ktor-server-host-common:${Versions.ktor}")
     implementation("io.ktor:ktor-gson:${Versions.ktor}")
     implementation("io.ktor:ktor-server-netty:${Versions.ktor}")
+    implementation("io.ktor:ktor-auth:${Versions.ktor}")
+    implementation("io.ktor:ktor-auth-jwt:${Versions.ktor}")
 
     implementation("io.insert-koin:koin-ktor:${Versions.koin}")
     implementation("io.insert-koin:koin-logger-slf4j:${Versions.koin}")
@@ -39,6 +42,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:${Versions.exposed}")
 
     implementation("org.valiktor:valiktor-core:${Versions.valiktor}")
+    implementation("org.mindrot:jbcrypt:${Versions.jbCrypt}")
+    implementation("com.github.ben-manes.caffeine:caffeine:${Versions.caffeine}")
 
     implementation("ch.qos.logback:logback-classic:${Versions.logback}")
 

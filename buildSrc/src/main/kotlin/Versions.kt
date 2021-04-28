@@ -10,7 +10,8 @@ object Versions {
     const val postgreSql = "42.2.16"
     const val kGraphQL = "0.17.4"
     const val graphQLJava = "16.2"
-
+    const val jbCrypt = "0.4"
+    const val caffeine = "3.0.0"
     const val junit5 = "5.4.2"
     const val kotest = "4.4.3"
     const val mockk = "1.10.5"

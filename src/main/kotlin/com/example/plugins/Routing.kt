@@ -1,31 +1,18 @@
 package com.example.plugins
 
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.features.*
+import com.example.articles.articles
+import com.example.tags.tags
+import com.example.users.users
 import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
 import io.ktor.routing.*
 
 fun Application.configureRouting() {
 
-
     routing {
-        get("/") {
-            call.respondText("Hello World!")
-        }
-        install(StatusPages) {
-            exception<AuthenticationException> { cause ->
-                call.respond(HttpStatusCode.Unauthorized)
-            }
-            exception<AuthorizationException> { cause ->
-                call.respond(HttpStatusCode.Forbidden)
-            }
-
+        route("api") {
+            users()
+            articles()
+            tags()
         }
     }
 }
-
-class AuthenticationException : RuntimeException()
-class AuthorizationException : RuntimeException()

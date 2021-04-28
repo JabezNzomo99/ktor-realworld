@@ -1,14 +1,19 @@
 package com.example
 
-import io.ktor.server.engine.*
+import com.example.core.db.AppDatabase
 import io.ktor.server.netty.*
 import com.example.plugins.*
+import io.ktor.application.*
 
-fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
-        configureRouting()
-        configureHTTP()
-        configureMonitoring()
-        configureSerialization()
-    }.start(wait = true)
+fun main(args: Array<String>) = EngineMain.main(args)
+
+fun Application.module(testing: Boolean = false) {
+    configureKoin()
+    configureAuthentication()
+    configureRouting()
+    configureHTTP()
+    configureMonitoring()
+    configureSerialization()
+    configureStatusPages()
+    AppDatabase.init()
 }
