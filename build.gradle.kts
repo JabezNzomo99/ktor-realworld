@@ -18,7 +18,10 @@ repositories {
     maven { url = uri("https://kotlin.bintray.com/ktor") }
     maven { url = uri("https://plugins.gradle.org/m2/") }
     maven { url = uri("https://dl.bintray.com/ekito/koin") }
-    maven { url = uri("https://dl.bintray.com/ekito/koin") }
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 dependencies {
@@ -52,10 +55,19 @@ dependencies {
     implementation("com.apurebase:kgraphql:${Versions.kGraphQL}")
 
     testImplementation("io.ktor:ktor-server-tests:${Versions.ktor}")
+
     testImplementation("io.mockk:mockk:${Versions.mockk}")
+
     testImplementation("org.junit.jupiter:junit-jupiter-engine:${Versions.junit5}")
     testImplementation("org.junit.jupiter:junit-jupiter:${Versions.junit5}")
+
+    testImplementation("org.testcontainers:junit-jupiter:${Versions.testContainerVersion}")
     testImplementation("org.testcontainers:testcontainers:${Versions.testContainerVersion}")
+    testImplementation("org.testcontainers:postgresql:${Versions.testContainerVersion}")
+
     testImplementation("io.kotest:kotest-assertions-ktor:${Versions.kotest}")
     testImplementation("io.kotest:kotest-assertions-core:${Versions.kotest}")
+
+    testImplementation("io.insert-koin:koin-test-junit5:${Versions.koin}")
+    testImplementation("io.insert-koin:koin-test:${Versions.koin}")
 }

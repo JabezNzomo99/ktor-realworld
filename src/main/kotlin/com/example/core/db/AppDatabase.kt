@@ -23,7 +23,7 @@ object AppDatabase {
     fun init() {
         initDataSource()
         migrate()
-        initORM()
+        if(::dataSource.isInitialized) initORM(dataSource)
     }
 
     private fun initDataSource() {
@@ -49,18 +49,18 @@ object AppDatabase {
             .load()
         flyway.migrate()
     }
+}
 
-    private fun initORM() {
-        Database.connect(dataSource)
-        transaction {
-            SchemaUtils.createMissingTablesAndColumns(
-                UserTable,
-                ArticleTable,
-                TagTable,
-                UserFavoriteTable,
-                CommentTable,
-                UserFollowingTable,
-            )
-        }
+fun initORM(dataSource: DataSource) {
+    Database.connect(dataSource)
+    transaction {
+        SchemaUtils.createMissingTablesAndColumns(
+            UserTable,
+            ArticleTable,
+            TagTable,
+            UserFavoriteTable,
+            CommentTable,
+            UserFollowingTable,
+        )
     }
 }

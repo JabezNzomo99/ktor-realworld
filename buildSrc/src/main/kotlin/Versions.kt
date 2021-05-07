@@ -15,5 +15,5 @@ object Versions {
     const val junit5 = "5.4.2"
     const val kotest = "4.4.3"
     const val mockk = "1.10.5"
-    const val testContainerVersion = "1.15.1"
+    const val testContainerVersion = "1.15.3"
 }

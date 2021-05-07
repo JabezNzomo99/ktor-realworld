@@ -6,10 +6,11 @@ import com.example.tags.tagModules
 import com.example.users.userModules
 import io.ktor.application.*
 import org.koin.ktor.ext.Koin
+import org.koin.ktor.ext.koin
 import org.koin.logger.SLF4JLogger
 
-fun Application.configureKoin(){
-    install(Koin){
+fun Application.configureKoin() {
+    koin {
         SLF4JLogger()
         modules(coreModules)
         modules(userModules)
