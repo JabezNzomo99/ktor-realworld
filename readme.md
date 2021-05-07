@@ -36,6 +36,8 @@ leveraged on;
 - [Jacoco](https://github.com/jacoco/jacoco): Mature test coverage and reporting.
 - [Mockk](https://mockk.io/): Easier mocks, stubs definitions using DSL allowing for easier testing.
 - [Ktor-tests](https://ktor.io/docs/testing.html): Provides Ktor test engine to allow for high fidelity end to end integration tests.
+- [Test Containers](https://www.testcontainers.org/): Provides reusable database instances for testing
+- [Kotest](https://kotest.io/): Testing framework for rich assertions. 
 
 ### Logging
 - [Logback](http://logback.qos.ch/): Mature logging library.
