@@ -1,5 +1,6 @@
 package com.example.users
 
+
 const val postInvalidUser = """
     {
         "user": {
@@ -15,6 +16,41 @@ const val postUser = """
             "email": "test@gmail.com",
             "password": "test",
             "username": "test"
+        }
+    }
+"""
+
+const val postInvalidLogin = """
+    {
+        "user": {
+            "email": "test@gmail.com"
+        }
+    }
+"""
+
+const val postNonExistentUserLogin = """
+    {
+        "user": {
+            "email": "test123@gmail.com",
+            "password": "test"
+        }
+    }
+"""
+
+const val postValidLogin = """
+    {
+        "user": {
+            "email": "$",
+            "password": "test"
+        }
+    }
+"""
+
+const val postInvalidCredentialsLogin = """
+    {
+        "user": {
+            "email": "$",
+            "password": "pass123"
         }
     }
 """

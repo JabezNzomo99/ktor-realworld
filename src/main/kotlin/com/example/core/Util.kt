@@ -1,10 +1,6 @@
 package com.example.core
 
 import org.mindrot.jbcrypt.BCrypt
-import java.text.SimpleDateFormat
-import java.time.*
-import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAccessor
 import java.util.*
 
 fun String?.encrypt(): String = BCrypt.hashpw(this, BCrypt.gensalt())

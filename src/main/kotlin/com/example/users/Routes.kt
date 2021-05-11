@@ -49,7 +49,7 @@ fun Route.users() {
         authenticate(optional = true) {
             get("/{username}") {
                 val username = call.parameters["username"]
-                    ?: throw MissingRequestBodyException("Article slug is required!")
+                    ?: throw MissingRequestBodyException("Username is required!")
                 call.respond(HttpStatusCode.OK,
                     message = mapOf("profile" to controller.getProfile(call.principal(),username)))
             }
