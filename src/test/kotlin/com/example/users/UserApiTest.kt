@@ -48,4 +48,46 @@ class UserApiTest: BaseApiTest() {
             response shouldHaveStatus HttpStatusCode.Unauthorized
         }
     }
+
+    @Test
+    fun `test whether PUT user returns 200 when posted with a valid request body`() = withTestAppBase {
+        val testUsername = "test${Random.nextInt()}"
+        val testEmail = "test${Random.nextInt()}@gmail.com"
+        transaction {
+            UserDao.new {
+                email = testEmail
+                username = testUsername
+                password = "test".encrypt()
+            }
+        }
+        handleRequest(HttpMethod.Post, "api/users/login") {
+            addHeader(HttpHeaders.ContentType, "application/json")
+            setBody(postValidLogin.replace("$", testEmail))
+        }.apply {
+            response shouldHaveStatus HttpStatusCode.OK
+            val userResponse = Gson().fromJson(response.content, UserResponse::class.java)
+            userResponse.user.token.shouldNotBeEmpty()
+            handleRequest(HttpMethod.Put, "api/user") {
+                addHeader(HttpHeaders.ContentType, "application/json")
+                addHeader("Authorization", "Bearer ${userResponse.user.token}")
+            }.apply {
+                response shouldHaveStatus HttpStatusCode.OK
+                transaction {
+                    UserDao.find {
+                        UserTable.username eq testUsername
+                    }.firstOrNull()?.bio.shouldNotBeEmpty()
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `test whether PUT user returns 422 when posted with an invalid request body`() = withTestAppBase {
+        handleRequest(HttpMethod.Post, "api/users/login") {
+            addHeader(HttpHeaders.ContentType, "application/json")
+            setBody(putInvalidUser)
+        }.apply {
+            response shouldHaveStatus HttpStatusCode.UnprocessableEntity
+        }
+    }
 }

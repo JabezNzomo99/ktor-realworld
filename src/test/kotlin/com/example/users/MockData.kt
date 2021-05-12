@@ -54,3 +54,19 @@ const val postInvalidCredentialsLogin = """
         }
     }
 """
+
+const val putUser = """
+    {
+        "user": {
+            "bio": "Self Compassion", 
+            "image":"test"
+        }
+    }
+"""
+
+const val putInvalidUser = """
+    {
+      "bio": "Self Compassion", 
+      "image":"test"   
+    }
+"""
