@@ -135,7 +135,7 @@ class FollowUserApiTest : BaseApiTest() {
             }
         }
 
-        // Create following rshp btwn current user and following user
+        // Create following relationship between current user and following user
         transaction {
             UserFollowingDao.new {
                 this.userId = currentUser
@@ -166,7 +166,7 @@ class FollowUserApiTest : BaseApiTest() {
     }
 
     @Test
-    fun `test whether ufollow user returns 404 when username to unfollow does not exist`() = withTestAppBase {
+    fun `test whether unfollow user returns 404 when user to unfollow does not exist`() = withTestAppBase {
         val testUsername = getRandomUserName()
         val testEmail = getRandomEmail()
 
