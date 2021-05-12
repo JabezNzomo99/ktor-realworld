@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.jupiter.api.Test
 import kotlin.random.Random
 
-class UserApiTest: BaseApiTest() {
+class UserApiTest : BaseApiTest() {
 
     @Test
     fun `test whether GET user returns 200 when a valid user is currently logged in`() = withTestAppBase {
