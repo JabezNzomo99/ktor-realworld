@@ -39,7 +39,7 @@ data class User(
     val isFollowing: Boolean? = null,
 ) : Principal
 
-object UserTable : ExtendedUUIDTable(name = "users", pk = "user_id") {
+object UserTable : ExtendedUUIDTable(name = "users") {
     val email = varchar(name = "email", length = 255).uniqueIndex()
     val username = varchar(name = "username", length = 255).uniqueIndex()
     val password = varchar(name = "password", length = 255)

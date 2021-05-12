@@ -7,8 +7,8 @@ import com.example.getRandomUserName
 import com.example.withTestAppBase
 import com.google.gson.Gson
 import io.kotest.assertions.ktor.shouldHaveStatus
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.string.shouldNotBeEmpty
 import io.ktor.http.*
 import io.ktor.server.testing.*
@@ -20,7 +20,7 @@ class FollowUserApiTest : BaseApiTest() {
 
     @Test
     fun `test whether follow user returns 401 when auth token is missing`() = withTestAppBase {
-        handleRequest(HttpMethod.Put, "api/${getRandomUserName()}/follow") {
+        handleRequest(HttpMethod.Post, "api/profiles/${getRandomUserName()}/follow") {
             addHeader(HttpHeaders.ContentType, "application/json")
         }.apply {
             response shouldHaveStatus HttpStatusCode.Unauthorized
@@ -57,7 +57,7 @@ class FollowUserApiTest : BaseApiTest() {
             response shouldHaveStatus HttpStatusCode.OK
             val userResponse = Gson().fromJson(response.content, UserResponse::class.java)
             userResponse.user.token.shouldNotBeEmpty()
-            handleRequest(HttpMethod.Put, "api/${testUsername2}/follow") {
+            handleRequest(HttpMethod.Post, "api/profiles/${testUsername2}/follow") {
                 addHeader(HttpHeaders.ContentType, "application/json")
                 addHeader("Authorization", "Bearer ${userResponse.user.token}")
             }.apply {
@@ -66,8 +66,8 @@ class FollowUserApiTest : BaseApiTest() {
                     UserFollowingDao.find {
                         (UserFollowingTable.userId eq currentUser.uid) and
                             (UserFollowingTable.followingId eq followingUser.uid)
-                    }
-                }.shouldNotBeEmpty()
+                    }.shouldNotBeEmpty()
+                }
             }
         }
     }
@@ -92,7 +92,7 @@ class FollowUserApiTest : BaseApiTest() {
             response shouldHaveStatus HttpStatusCode.OK
             val userResponse = Gson().fromJson(response.content, UserResponse::class.java)
             userResponse.user.token.shouldNotBeEmpty()
-            handleRequest(HttpMethod.Put, "api/${getRandomUserName()}/follow") {
+            handleRequest(HttpMethod.Post, "api/profiles/${getRandomUserName()}/follow") {
                 addHeader(HttpHeaders.ContentType, "application/json")
                 addHeader("Authorization", "Bearer ${userResponse.user.token}")
             }.apply {
@@ -103,7 +103,7 @@ class FollowUserApiTest : BaseApiTest() {
 
     @Test
     fun `test whether unfollow user returns 401 when auth token is missing`() = withTestAppBase {
-        handleRequest(HttpMethod.Put, "api/${getRandomUserName()}/unfollow") {
+        handleRequest(HttpMethod.Post, "api/profiles/${getRandomUserName()}/unfollow") {
             addHeader(HttpHeaders.ContentType, "application/json")
         }.apply {
             response shouldHaveStatus HttpStatusCode.Unauthorized
@@ -138,8 +138,8 @@ class FollowUserApiTest : BaseApiTest() {
         // Create following relationship between current user and following user
         transaction {
             UserFollowingDao.new {
-                this.userId = currentUser
-                this.followingId = followingUser
+                userId = currentUser
+                followingId = followingUser
             }
         }
 
@@ -150,17 +150,11 @@ class FollowUserApiTest : BaseApiTest() {
             response shouldHaveStatus HttpStatusCode.OK
             val userResponse = Gson().fromJson(response.content, UserResponse::class.java)
             userResponse.user.token.shouldNotBeEmpty()
-            handleRequest(HttpMethod.Put, "api/${testUsername2}/unfollow") {
+            handleRequest(HttpMethod.Post, "api/profiles/${testUsername2}/unfollow") {
                 addHeader(HttpHeaders.ContentType, "application/json")
                 addHeader("Authorization", "Bearer ${userResponse.user.token}")
             }.apply {
                 response shouldHaveStatus HttpStatusCode.OK
-                transaction {
-                    UserFollowingDao.find {
-                        (UserFollowingTable.userId eq currentUser.uid) and
-                            (UserFollowingTable.followingId eq followingUser.uid)
-                    }
-                }.shouldBeEmpty()
             }
         }
     }
@@ -185,7 +179,7 @@ class FollowUserApiTest : BaseApiTest() {
             response shouldHaveStatus HttpStatusCode.OK
             val userResponse = Gson().fromJson(response.content, UserResponse::class.java)
             userResponse.user.token.shouldNotBeEmpty()
-            handleRequest(HttpMethod.Put, "api/${getRandomUserName()}/unfollow") {
+            handleRequest(HttpMethod.Post, "api/profiles/${getRandomUserName()}/unfollow") {
                 addHeader(HttpHeaders.ContentType, "application/json")
                 addHeader("Authorization", "Bearer ${userResponse.user.token}")
             }.apply {
